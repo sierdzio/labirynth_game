@@ -1,3 +1,8 @@
+use std::io::{Write, stdout, stdin};
+use termion::input::TermRead;
+use termion::event::Key;
+use termion::raw::IntoRawMode;
+
 fn main() {
     let board = [
         ['.', '.', 'w', '.', '.'], 
@@ -11,44 +16,53 @@ fn main() {
     // TODO: change this into a struct
     let mut position = [0, 0];
 
-    loop {
-        println!("Use arrow keys to go through the maze. Type 'q' to quit");
-        println!("w - wall, dot (.) - path, d - doors, ☑ - exit");
-        println!("");
+    let stdin = stdin();
+    let mut stdout = stdout().into_raw_mode().unwrap();
+    
+    write!(stdout, "{}", termion::cursor::Hide).unwrap();
 
+    for c in stdin.keys() {
+        write!(stdout, "{}{}", termion::clear::All, termion::cursor::Goto(1, 1)).unwrap();
+
+        match c.unwrap() {
+            Key::Char('q') => {
+                write!(stdout, "Quitting!\r\n").unwrap();
+                break;
+            },
+            Key::Left => {
+                write!(stdout, "Moving left\r\n").unwrap();
+                position = [position[0], position[1] - 1];
+            },
+            Key::Right => {
+                write!(stdout, "Moving right\r\n").unwrap();
+                position = [position[0], position[1] + 1];
+            },            
+            Key::Up => {
+                write!(stdout, "Moving up\r\n").unwrap();
+                position = [position[0] - 1, position[1]];
+            },
+            Key::Down => {
+                write!(stdout, "Moving down\r\n").unwrap();
+                position = [position[0] + 1, position[1]];
+            },
+            _ => continue
+        }
+
+        write!(stdout, "Use arrow keys to go through the maze. Type 'q' to quit\r\n").unwrap();
+        write!(stdout, "w - wall, dot (.) - path, d - doors, ☑ - exit\r\n").unwrap();
         for (row_index, row) in board.iter().enumerate() {
             for (column_index, character) in row.iter().enumerate() {
                 if position == [row_index, column_index] {
-                    print!("🨄");
+                    write!(stdout, "🨄").unwrap();
                 } else {
-                    print!("{character}");
+                    write!(stdout, "{character}").unwrap();
                 }
             }
-            println!();
+            write!(stdout, "\r\n").unwrap();
         }
 
-        let mut move_str = String::new();
-
-        std::io::stdin()
-            .read_line(&mut move_str)
-            .expect("Failed to read command");
-
-        println!("Command is: {move_str}");
-
-        if move_str == "q" {
-            break;
-        } else if  move_str == "\033[D" {
-            println!("Moving left");
-            position = [position[0] - 1, position[1]];
-        } else if  move_str == "\033[C" {
-            println!("Moving right");
-            position = [position[0] + 1, position[1]];
-        } else if  move_str == "\033[A" {
-            println!("Moving up");
-            position = [position[0], position[1] - 1];
-        } else if  move_str == "\033[B" {
-            println!("Moving down");
-            position = [position[0], position[1] + 1];
-        }
+        stdout.flush().unwrap();
     }
+
+    write!(stdout, "{}", termion::cursor::Show).unwrap();
 }
