@@ -1,28 +1,22 @@
 use std::io::{Write, stdout, stdin};
-use std::convert::TryFrom;
 
 use termion::input::TermRead;
 use termion::event::Key;
 use termion::raw::IntoRawMode;
 
-fn draw_board(board: &[[char; 5]; 6], position: &[i32]) {
+struct Position {
+    x: usize,
+    y: usize,
+}
+
+fn draw_board(board: &[[char; 5]; 6], position: &Position) {
     let mut stdout = stdout().into_raw_mode().unwrap();
     write!(stdout, "Use arrow keys to go through the maze. Type 'q' to quit\r\n").unwrap();
         write!(stdout, "w - wall, dot (.) - path, d - doors, ☑ - exit\r\n").unwrap();
         for (row_index, row) in board.iter().enumerate() {
-            for (column_index, character) in row.iter().enumerate() {
-                let row_i32 = match i32::try_from(row_index) {
-                    Ok(v) => v,
-                    Err(_) => panic!("Could not fit row index into i32!"),
-                };
-                
-                let column_i32 = match i32::try_from(column_index) {
-                    Ok(v) => v,
-                    Err(_) => panic!("Could not fit column index into i32!"),
-                };
-                
-                if position == [row_i32, column_i32] {
-                    write!(stdout, "🨄").unwrap();
+            for (column_index, character) in row.iter().enumerate() {                
+                if position.x == row_index && position.y == column_index {
+                    write!(stdout, "P").unwrap(); // 🨄
                 } else {
                     write!(stdout, "{character}").unwrap();
                 }
@@ -43,8 +37,10 @@ fn main() {
         ['w', 'w', 'w', '.', 'w'], 
         ];
 
-    // TODO: change this into a struct
-    let mut position = [0, 0];
+    let mut position = Position {
+        x: 0,
+        y: 0
+    };
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -63,19 +59,19 @@ fn main() {
             },
             Key::Left => {
                 write!(stdout, "Moving left\r\n").unwrap();
-                position = [position[0], position[1] - 1];
+                position.y = position.y - 1;
             },
             Key::Right => {
                 write!(stdout, "Moving right\r\n").unwrap();
-                position = [position[0], position[1] + 1];
+                position.y = position.y + 1;
             },            
             Key::Up => {
                 write!(stdout, "Moving up\r\n").unwrap();
-                position = [position[0] - 1, position[1]];
+                position.x = position.x - 1;
             },
             Key::Down => {
                 write!(stdout, "Moving down\r\n").unwrap();
-                position = [position[0] + 1, position[1]];
+                position.x = position.x + 1;
             },
             _ => continue
         }
