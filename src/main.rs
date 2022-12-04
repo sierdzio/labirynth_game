@@ -1,30 +1,31 @@
-use std::io::{Write, stdout, stdin};
+use std::io::{Write, Stdout, stdout, stdin};
 
 use termion::input::TermRead;
 use termion::event::Key;
 use termion::raw::IntoRawMode;
+use termion::raw::RawTerminal;
 
 struct Position {
     x: usize,
     y: usize,
 }
 
-fn draw_board(board: &[[char; 5]; 6], position: &Position) {
-    let mut stdout = stdout().into_raw_mode().unwrap();
+fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &[[char; 5]; 6], position: &Position) {
     write!(stdout, "Use arrow keys to go through the maze. Type 'q' to quit\r\n").unwrap();
-        write!(stdout, "w - wall, dot (.) - path, d - doors, ☑ - exit\r\n").unwrap();
-        for (row_index, row) in board.iter().enumerate() {
-            for (column_index, character) in row.iter().enumerate() {                
-                if position.x == row_index && position.y == column_index {
-                    write!(stdout, "P").unwrap(); // 🨄
-                } else {
-                    write!(stdout, "{character}").unwrap();
-                }
-            }
-            write!(stdout, "\r\n").unwrap();
-        }
+    write!(stdout, "w - wall, dot (.) - path, d - doors, ☑ - exit\r\n").unwrap();
 
-        stdout.flush().unwrap();
+    for (row_index, row) in board.iter().enumerate() {
+        for (column_index, character) in row.iter().enumerate() {                
+            if position.x == row_index && position.y == column_index {
+                write!(stdout, "P").unwrap(); // 🨄
+            } else {
+                write!(stdout, "{character}").unwrap();
+            }
+        }
+        write!(stdout, "\r\n").unwrap();
+    }
+
+    stdout.flush().unwrap();
 }
 
 fn main() {
@@ -47,7 +48,7 @@ fn main() {
     
     write!(stdout, "{}", termion::cursor::Hide).unwrap();
 
-    draw_board(&board, &position);
+    draw_board(&mut stdout, &board, &position);
 
     for c in stdin.keys() {
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Goto(1, 1)).unwrap();
@@ -76,7 +77,7 @@ fn main() {
             _ => continue
         }
 
-        draw_board(&board, &position);
+        draw_board(&mut stdout, &board, &position);
     }
 
     write!(stdout, "{}", termion::cursor::Show).unwrap();
