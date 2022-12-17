@@ -10,6 +10,16 @@ struct Position {
     y: usize,
 }
 
+const FINISH_TILE: char = '☑';
+
+enum Direction {
+    Unknown,
+    Left,
+    Right,
+    Up,
+    Down
+}
+
 fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &[[char; 5]; 6], position: &Position) {
     write!(stdout, "Use arrow keys to go through the maze. Type 'q' to quit\r\n").unwrap();
     write!(stdout, "w - wall, dot (.) - path, d - doors, ☑ - exit\r\n").unwrap();
@@ -28,13 +38,32 @@ fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &[[char; 5]; 6], position
     stdout.flush().unwrap();
 }
 
+fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direction) {
+    match direction {
+        Direction::Unknown => {
+        },
+        Direction::Left => {
+            position.y = position.y - 1;
+        },        
+        Direction::Right => {
+            position.y = position.y + 1;
+        },
+        Direction::Up => {
+            position.x = position.x - 1;
+        },
+        Direction::Down => {
+            position.x = position.x + 1;
+        }
+    }
+}
+
 fn main() {
     let board = [
         ['.', '.', 'w', '.', '.'], 
         ['w', '.', 'w', 'w', 'w'], 
         ['w', '.', 'd', '.', 'w'], 
         ['.', '.', 'w', '.', 'w'], 
-        ['w', 'w', 'w', '.', '☑'], 
+        ['w', 'w', 'w', '.', FINISH_TILE], 
         ['w', 'w', 'w', '.', 'w'], 
         ];
 
@@ -50,6 +79,8 @@ fn main() {
 
     draw_board(&mut stdout, &board, &position);
 
+    let mut direction: Direction = Direction::Unknown;
+
     for c in stdin.keys() {
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Goto(1, 1)).unwrap();
 
@@ -60,23 +91,24 @@ fn main() {
             },
             Key::Left => {
                 write!(stdout, "Moving left\r\n").unwrap();
-                position.y = position.y - 1;
+                direction = Direction::Left;
             },
             Key::Right => {
                 write!(stdout, "Moving right\r\n").unwrap();
-                position.y = position.y + 1;
+                direction = Direction::Right;
             },            
             Key::Up => {
                 write!(stdout, "Moving up\r\n").unwrap();
-                position.x = position.x - 1;
+                direction = Direction::Up;
             },
             Key::Down => {
                 write!(stdout, "Moving down\r\n").unwrap();
-                position.x = position.x + 1;
+                direction = Direction::Down;
             },
             _ => continue
         }
 
+        try_to_move(&board, &mut position, direction);
         draw_board(&mut stdout, &board, &position);
     }
 
