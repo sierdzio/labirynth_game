@@ -26,7 +26,7 @@ fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &[[char; 5]; 6], position
 
     for (row_index, row) in board.iter().enumerate() {
         for (column_index, character) in row.iter().enumerate() {                
-            if position.x == row_index && position.y == column_index {
+            if position.x == column_index && position.y == row_index {
                 write!(stdout, "P").unwrap(); // 🨄
             } else {
                 write!(stdout, "{character}").unwrap();
@@ -43,16 +43,58 @@ fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direc
         Direction::Unknown => {
         },
         Direction::Left => {
-            position.y = position.y - 1;
+            // TODO: also check if not going over x/y size
+
+            let new_pos: usize;
+            
+            if position.x > 0 {
+                new_pos = position.x - 1;
+            } else {
+                new_pos = position.x;
+            }
+
+            if board[position.y][new_pos] != 'w' {
+                position.x = new_pos;
+            }
         },        
         Direction::Right => {
-            position.y = position.y + 1;
+            let new_pos: usize;
+            
+            if position.x < 4 {
+                new_pos = position.x + 1;
+            } else {
+                new_pos = position.x;
+            }
+
+            if board[position.y][new_pos] != 'w' {
+                position.x = new_pos;
+            }
         },
         Direction::Up => {
-            position.x = position.x - 1;
+            let new_pos: usize;
+            
+            if position.y > 0 {
+                new_pos = position.y - 1;
+            } else {
+                new_pos = position.y;
+            }
+
+            if board[new_pos][position.x] != 'w' {
+                position.y = new_pos;
+            }
         },
         Direction::Down => {
-            position.x = position.x + 1;
+            let new_pos: usize;
+            
+            if position.y < 5 {
+                new_pos = position.y + 1;
+            } else {
+                new_pos = position.y;
+            }
+
+            if board[new_pos][position.x] != 'w' {
+                position.y = new_pos;
+            }
         }
     }
 }
@@ -79,7 +121,7 @@ fn main() {
 
     draw_board(&mut stdout, &board, &position);
 
-    let mut direction: Direction = Direction::Unknown;
+    let mut direction: Direction;
 
     for c in stdin.keys() {
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Goto(1, 1)).unwrap();
@@ -105,11 +147,18 @@ fn main() {
                 write!(stdout, "Moving down\r\n").unwrap();
                 direction = Direction::Down;
             },
-            _ => continue
+            _ => {
+                direction = Direction::Unknown;
+            }
         }
 
         try_to_move(&board, &mut position, direction);
         draw_board(&mut stdout, &board, &position);
+
+        if board[position.y][position.x] == FINISH_TILE {
+            write!(stdout, "\nSuccess! Congratulations!\n").unwrap();
+            break;
+        }
     }
 
     write!(stdout, "{}", termion::cursor::Show).unwrap();
