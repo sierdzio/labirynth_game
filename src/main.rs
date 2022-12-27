@@ -11,6 +11,9 @@ struct Position {
 }
 
 const FINISH_TILE: char = '☑';
+const WALL: char = 'w';
+const DOORS: char = 'd';
+const PATH: char = '.';
 
 enum Direction {
     Unknown,
@@ -43,8 +46,6 @@ fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direc
         Direction::Unknown => {
         },
         Direction::Left => {
-            // TODO: also check if not going over x/y size
-
             let new_pos: usize;
             
             if position.x > 0 {
@@ -53,7 +54,7 @@ fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direc
                 new_pos = position.x;
             }
 
-            if board[position.y][new_pos] != 'w' {
+            if board[position.y][new_pos] != WALL {
                 position.x = new_pos;
             }
         },        
@@ -66,7 +67,7 @@ fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direc
                 new_pos = position.x;
             }
 
-            if board[position.y][new_pos] != 'w' {
+            if board[position.y][new_pos] != WALL {
                 position.x = new_pos;
             }
         },
@@ -79,7 +80,7 @@ fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direc
                 new_pos = position.y;
             }
 
-            if board[new_pos][position.x] != 'w' {
+            if board[new_pos][position.x] != WALL {
                 position.y = new_pos;
             }
         },
@@ -92,7 +93,7 @@ fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direc
                 new_pos = position.y;
             }
 
-            if board[new_pos][position.x] != 'w' {
+            if board[new_pos][position.x] != WALL {
                 position.y = new_pos;
             }
         }
@@ -101,12 +102,12 @@ fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direc
 
 fn main() {
     let board = [
-        ['.', '.', 'w', '.', '.'], 
-        ['w', '.', 'w', 'w', 'w'], 
-        ['w', '.', 'd', '.', 'w'], 
-        ['.', '.', 'w', '.', 'w'], 
-        ['w', 'w', 'w', '.', FINISH_TILE], 
-        ['w', 'w', 'w', '.', 'w'], 
+        [PATH, PATH, WALL, PATH, PATH], 
+        [WALL, PATH, WALL, WALL, WALL], 
+        [WALL, PATH, DOORS, PATH, WALL], 
+        [PATH, PATH, WALL, PATH, WALL], 
+        [WALL, WALL, WALL, PATH, FINISH_TILE], 
+        [WALL, WALL, WALL, PATH, WALL], 
         ];
 
     let mut position = Position {
