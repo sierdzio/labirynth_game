@@ -1,14 +1,10 @@
-use std::io::{Write, Stdout, stdout, stdin};
+use std::io::{Write, stdout, stdin};
 
 use termion::input::TermRead;
 use termion::event::Key;
 use termion::raw::IntoRawMode;
-use termion::raw::RawTerminal;
 
-struct Position {
-    x: usize,
-    y: usize,
-}
+pub mod board;
 
 const FINISH_TILE: char = '☑';
 const WALL: char = 'w';
@@ -23,25 +19,7 @@ enum Direction {
     Down
 }
 
-fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &[[char; 5]; 6], position: &Position) {
-    write!(stdout, "Use arrow keys to go through the maze. Type 'q' to quit\r\n").unwrap();
-    write!(stdout, "w - wall, dot (.) - path, d - doors, ☑ - exit\r\n").unwrap();
-
-    for (row_index, row) in board.iter().enumerate() {
-        for (column_index, character) in row.iter().enumerate() {                
-            if position.x == column_index && position.y == row_index {
-                write!(stdout, "P").unwrap(); // 🨄
-            } else {
-                write!(stdout, "{character}").unwrap();
-            }
-        }
-        write!(stdout, "\r\n").unwrap();
-    }
-
-    stdout.flush().unwrap();
-}
-
-fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direction) {
+fn try_to_move(board: &[[char; 5]; 6], position: &mut board::Position, direction: Direction) {
     match direction {
         Direction::Unknown => {
         },
@@ -110,7 +88,7 @@ fn main() {
         [WALL, WALL, WALL, PATH, WALL], 
         ];
 
-    let mut position = Position {
+    let mut position = board::Position {
         x: 0,
         y: 0
     };
@@ -120,12 +98,14 @@ fn main() {
     
     write!(stdout, "{}", termion::cursor::Hide).unwrap();
 
-    draw_board(&mut stdout, &board, &position);
+    board::draw_board(&mut stdout, &board, &position);
 
     let mut direction: Direction;
 
     for c in stdin.keys() {
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Goto(1, 1)).unwrap();
+
+        let mut move_text: &str = "";
 
         match c.unwrap() {
             Key::Char('q') => {
@@ -133,19 +113,19 @@ fn main() {
                 break;
             },
             Key::Left => {
-                write!(stdout, "Moving left\r\n").unwrap();
+                move_text = "Moving left\r\n";
                 direction = Direction::Left;
             },
             Key::Right => {
-                write!(stdout, "Moving right\r\n").unwrap();
+                move_text = "Moving right\r\n";
                 direction = Direction::Right;
             },            
             Key::Up => {
-                write!(stdout, "Moving up\r\n").unwrap();
+                move_text = "Moving up\r\n";
                 direction = Direction::Up;
             },
             Key::Down => {
-                write!(stdout, "Moving down\r\n").unwrap();
+                move_text = "Moving down\r\n";
                 direction = Direction::Down;
             },
             _ => {
@@ -154,7 +134,8 @@ fn main() {
         }
 
         try_to_move(&board, &mut position, direction);
-        draw_board(&mut stdout, &board, &position);
+        board::draw_board(&mut stdout, &board, &position);
+        write!(stdout, "{} \r\n", move_text).unwrap();
 
         if board[position.y][position.x] == FINISH_TILE {
             write!(stdout, "\nSuccess! Congratulations!\n").unwrap();
