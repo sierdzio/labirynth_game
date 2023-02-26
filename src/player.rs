@@ -13,7 +13,7 @@ pub enum Direction {
     Down
 }
 
-pub fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: Direction) {
+pub fn try_to_move(board: &Vec<Vec<char>>, position: &mut Position, direction: Direction) {
     match direction {
         Direction::Unknown => {
         },
@@ -33,7 +33,7 @@ pub fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: D
         Direction::Right => {
             let new_pos: usize;
             
-            if position.x < 4 {
+            if position.x < board[position.y].len() {
                 new_pos = position.x + 1;
             } else {
                 new_pos = position.x;
@@ -59,7 +59,7 @@ pub fn try_to_move(board: &[[char; 5]; 6], position: &mut Position, direction: D
         Direction::Down => {
             let new_pos: usize;
             
-            if position.y < 5 {
+            if position.y < board.len() {
                 new_pos = position.y + 1;
             } else {
                 new_pos = position.y;

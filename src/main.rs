@@ -8,13 +8,13 @@ pub mod player;
 pub mod board;
 
 fn main() {
-    let board = [
-        [board::PATH, board::PATH, board::WALL, board::PATH, board::PATH], 
-        [board::WALL, board::PATH, board::WALL, board::WALL, board::WALL], 
-        [board::WALL, board::PATH, board::DOORS, board::PATH, board::WALL], 
-        [board::PATH, board::PATH, board::WALL, board::PATH, board::WALL], 
-        [board::WALL, board::WALL, board::WALL, board::PATH, board::FINISH_TILE], 
-        [board::WALL, board::WALL, board::WALL, board::PATH, board::WALL], 
+    let board: Vec<Vec<char>> = vec![
+        vec![board::WALL, board::PATH, board::WALL, board::WALL, board::WALL], 
+        vec![board::PATH, board::PATH, board::WALL, board::PATH, board::PATH], 
+        vec![board::WALL, board::PATH, board::DOORS, board::PATH, board::WALL], 
+        vec![board::PATH, board::PATH, board::WALL, board::PATH, board::WALL], 
+        vec![board::WALL, board::WALL, board::WALL, board::PATH, board::FINISH_TILE], 
+        vec![board::WALL, board::WALL, board::WALL, board::PATH, board::WALL], 
         ];
 
     let mut position = player::Position {

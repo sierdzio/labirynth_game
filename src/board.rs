@@ -8,7 +8,7 @@ pub const WALL: char = 'w';
 pub const DOORS: char = 'd';
 pub const PATH: char = '.';
 
-pub fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &[[char; 5]; 6], position: &player::Position) {
+pub fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &Vec<Vec<char>>, position: &player::Position) {
     write!(stdout, "Use arrow keys to go through the maze. Type 'q' to quit\r\n").unwrap();
     write!(stdout, "w - wall, dot (.) - path, d - doors, ☑ - exit\r\n").unwrap();
 
