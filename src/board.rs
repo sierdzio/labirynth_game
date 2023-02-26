@@ -26,3 +26,11 @@ pub fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &Vec<Vec<char>>, posi
 
     stdout.flush().unwrap();
 }
+
+pub fn parse_board_string(stdout: &mut RawTerminal<Stdout>, raw_data: String) 
+ -> Result<Vec<Vec<char>>, ()>
+{
+    write!(stdout, "Read board data: {}\r\n", raw_data).unwrap();
+
+    return Result::Err(());
+}
