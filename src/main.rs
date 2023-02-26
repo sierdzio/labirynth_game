@@ -9,6 +9,7 @@ use std::fs;
 
 pub mod player;
 pub mod board;
+pub mod levels;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -18,6 +19,8 @@ fn main() {
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
     write!(stdout, "{}", termion::cursor::Hide).unwrap();
+
+    levels::draw_available_levels(&mut stdout, 1);
 
     // Read board data
     let path = "boards/default.board";
