@@ -8,6 +8,8 @@ pub const ALTERNATE_FINISH_TILE: char = 'f';
 pub const WALL: char = 'w';
 pub const DOORS: char = 'd';
 pub const PATH: char = '.';
+pub const PLAYER: char = 'P'; // 🨄
+pub const COMMENT: char = '#';
 
 pub fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &Vec<Vec<char>>, position: &player::Position) {
     write!(stdout, "Use arrow keys to go through the maze. Type 'q' to quit\r\n").unwrap();
@@ -16,7 +18,7 @@ pub fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &Vec<Vec<char>>, posi
     for (row_index, row) in board.iter().enumerate() {
         for (column_index, character) in row.iter().enumerate() {                
             if position.x == column_index && position.y == row_index {
-                write!(stdout, "P").unwrap(); // 🨄
+                write!(stdout, "{PLAYER}").unwrap(); 
             } else {
                 write!(stdout, "{character}").unwrap();
             }
@@ -34,21 +36,17 @@ pub fn parse_board_string(stdout: &mut RawTerminal<Stdout>, raw_data: String)
 
     let mut result: Vec<Vec<char>> = vec![];
     for line in raw_data.lines() {
-        if line.starts_with("#") || line.is_empty() {
+        if line.starts_with(COMMENT) || line.is_empty() {
             continue;
         }
 
         let mut chars: Vec<char> = vec![];
 
         for character in line.chars() {
-            if character == WALL {
-                chars.push(WALL);
-            } else if character == DOORS {
-                chars.push(DOORS);
-            } else if character == PATH {
-                chars.push(PATH);
-            } else if character == FINISH_TILE || character == ALTERNATE_FINISH_TILE {
+            if character == FINISH_TILE || character == ALTERNATE_FINISH_TILE {
                 chars.push(FINISH_TILE);
+            } else if character == WALL || character == DOORS || character == PATH {
+                chars.push(character);
             }
         }
 
