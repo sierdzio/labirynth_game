@@ -32,14 +32,43 @@ pub fn parse_board_string(stdout: &mut RawTerminal<Stdout>, raw_data: String)
 {
     write!(stdout, "Read board data: {}\r\n", raw_data).unwrap();
 
-    //return Err("Could not parse board data");
+    let mut result: Vec<Vec<char>> = vec![];
+    for line in raw_data.lines() {
+        if line.starts_with("#") || line.is_empty() {
+            continue;
+        }
 
-    return Ok(vec![
-            vec![WALL, PATH, WALL, WALL, WALL], 
-            vec![PATH, PATH, WALL, PATH, PATH], 
-            vec![WALL, PATH, DOORS, PATH, WALL], 
-            vec![PATH, PATH, WALL, PATH, WALL], 
-            vec![WALL, WALL, WALL, PATH, FINISH_TILE], 
-            vec![WALL, WALL, WALL, PATH, WALL], 
-            ]);
+        let mut chars: Vec<char> = vec![];
+
+        for character in line.chars() {
+            if character == WALL {
+                chars.push(WALL);
+            } else if character == DOORS {
+                chars.push(DOORS);
+            } else if character == PATH {
+                chars.push(PATH);
+            } else if character == FINISH_TILE || character == ALTERNATE_FINISH_TILE {
+                chars.push(FINISH_TILE);
+            }
+        }
+
+        if chars.is_empty() == false {
+            result.push(chars);
+        }
+    }
+
+    if result.is_empty() {
+        return Err("Board data is empty");
+    }
+
+    return Ok(result);
+
+    //return Ok(vec![
+    //        vec![WALL, PATH, WALL, WALL, WALL], 
+    //        vec![PATH, PATH, WALL, PATH, PATH], 
+    //        vec![WALL, PATH, DOORS, PATH, WALL], 
+    //        vec![PATH, PATH, WALL, PATH, WALL], 
+    //        vec![WALL, WALL, WALL, PATH, FINISH_TILE], 
+    //        vec![WALL, WALL, WALL, PATH, WALL], 
+    //        ]);
 }
