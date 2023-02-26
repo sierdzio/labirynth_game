@@ -62,13 +62,4 @@ pub fn parse_board_string(stdout: &mut RawTerminal<Stdout>, raw_data: String)
     }
 
     return Ok(result);
-
-    //return Ok(vec![
-    //        vec![WALL, PATH, WALL, WALL, WALL], 
-    //        vec![PATH, PATH, WALL, PATH, PATH], 
-    //        vec![WALL, PATH, DOORS, PATH, WALL], 
-    //        vec![PATH, PATH, WALL, PATH, WALL], 
-    //        vec![WALL, WALL, WALL, PATH, FINISH_TILE], 
-    //        vec![WALL, WALL, WALL, PATH, WALL], 
-    //        ]);
 }
