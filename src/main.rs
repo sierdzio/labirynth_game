@@ -4,10 +4,15 @@ use termion::input::TermRead;
 use termion::event::Key;
 use termion::raw::IntoRawMode;
 
+use std::env;
+
 pub mod player;
 pub mod board;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    dbg!(args);
+
     let board: Vec<Vec<char>> = vec![
         vec![board::WALL, board::PATH, board::WALL, board::WALL, board::WALL], 
         vec![board::PATH, board::PATH, board::WALL, board::PATH, board::PATH], 
@@ -66,7 +71,8 @@ fn main() {
         board::draw_board(&mut stdout, &board, &position);
         write!(stdout, "{} \r\n", move_text).unwrap();
 
-        if board[position.y][position.x] == board::FINISH_TILE {
+        if board[position.y][position.x] == board::FINISH_TILE
+            || board[position.y][position.x] == board::ALTERNATE_FINISH_TILE {
             write!(stdout, "\nSuccess! Congratulations!\n").unwrap();
             break;
         }

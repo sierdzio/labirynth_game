@@ -33,7 +33,7 @@ pub fn try_to_move(board: &Vec<Vec<char>>, position: &mut Position, direction: D
         Direction::Right => {
             let new_pos: usize;
             
-            if position.x < board[position.y].len() {
+            if position.x < board[position.y].len() - 1 {
                 new_pos = position.x + 1;
             } else {
                 new_pos = position.x;
@@ -59,7 +59,7 @@ pub fn try_to_move(board: &Vec<Vec<char>>, position: &mut Position, direction: D
         Direction::Down => {
             let new_pos: usize;
             
-            if position.y < board.len() {
+            if position.y < board.len() - 1 {
                 new_pos = position.y + 1;
             } else {
                 new_pos = position.y;
