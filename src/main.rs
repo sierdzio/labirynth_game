@@ -5,6 +5,7 @@ use termion::event::Key;
 use termion::raw::IntoRawMode;
 
 use std::env;
+use std::fs;
 
 pub mod player;
 pub mod board;
@@ -13,24 +14,27 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     dbg!(args);
 
-    let board: Vec<Vec<char>> = vec![
-        vec![board::WALL, board::PATH, board::WALL, board::WALL, board::WALL], 
-        vec![board::PATH, board::PATH, board::WALL, board::PATH, board::PATH], 
-        vec![board::WALL, board::PATH, board::DOORS, board::PATH, board::WALL], 
-        vec![board::PATH, board::PATH, board::WALL, board::PATH, board::WALL], 
-        vec![board::WALL, board::WALL, board::WALL, board::PATH, board::FINISH_TILE], 
-        vec![board::WALL, board::WALL, board::WALL, board::PATH, board::WALL], 
-        ];
+    // Set up terminal controls
+    let stdin = stdin();
+    let mut stdout = stdout().into_raw_mode().unwrap();
+    write!(stdout, "{}", termion::cursor::Hide).unwrap();
+
+    // Read board data
+    let path = "boards/default.board";
+    let raw_data = match fs::read_to_string(path) {
+        Ok(data) => data,
+        Err(error) => panic!("{}: {}", error, path),
+    };
+
+    let board: Vec<Vec<char>> = match board::parse_board_string(&mut stdout, raw_data) {
+        Ok(data) => data,
+        Err(error) => panic!("{} Board path: {}", error, path),
+    };
 
     let mut position = player::Position {
         x: 0,
         y: 0
-    };
-
-    let stdin = stdin();
-    let mut stdout = stdout().into_raw_mode().unwrap();
-    
-    write!(stdout, "{}", termion::cursor::Hide).unwrap();
+    };    
 
     board::draw_board(&mut stdout, &board, &position);
 

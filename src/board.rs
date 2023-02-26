@@ -28,9 +28,18 @@ pub fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &Vec<Vec<char>>, posi
 }
 
 pub fn parse_board_string(stdout: &mut RawTerminal<Stdout>, raw_data: String) 
- -> Result<Vec<Vec<char>>, ()>
+ -> Result<Vec<Vec<char>>, &'static str>
 {
     write!(stdout, "Read board data: {}\r\n", raw_data).unwrap();
 
-    return Result::Err(());
+    //return Err("Could not parse board data");
+
+    return Ok(vec![
+            vec![WALL, PATH, WALL, WALL, WALL], 
+            vec![PATH, PATH, WALL, PATH, PATH], 
+            vec![WALL, PATH, DOORS, PATH, WALL], 
+            vec![PATH, PATH, WALL, PATH, WALL], 
+            vec![WALL, WALL, WALL, PATH, FINISH_TILE], 
+            vec![WALL, WALL, WALL, PATH, WALL], 
+            ]);
 }
