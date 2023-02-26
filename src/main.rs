@@ -4,7 +4,6 @@ use termion::input::TermRead;
 use termion::event::Key;
 use termion::raw::IntoRawMode;
 
-use std::env;
 use std::fs;
 
 pub mod player;
@@ -12,26 +11,27 @@ pub mod board;
 pub mod levels;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    dbg!(args);
-
     // Set up terminal controls
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
     write!(stdout, "{}", termion::cursor::Hide).unwrap();
 
-    levels::draw_available_levels(&mut stdout, 1);
+    let level = levels::let_user_select_level(&mut stdout);
 
     // Read board data
-    let path = "boards/default.board";
+    let path = match level {
+        Ok(level) => format!("boards/{}", level),
+        Err(message) => panic!("Invalid level selected: {}", message),
+    };
+
     let raw_data = match fs::read_to_string(path) {
         Ok(data) => data,
-        Err(error) => panic!("{}: {}", error, path),
+        Err(error) => panic!("{}", error),
     };
 
     let board: Vec<Vec<char>> = match board::parse_board_string(&mut stdout, raw_data) {
         Ok(data) => data,
-        Err(error) => panic!("{} Board path: {}", error, path),
+        Err(error) => panic!("{}", error),
     };
 
     let mut position = player::Position {
