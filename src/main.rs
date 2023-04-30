@@ -12,7 +12,7 @@ pub mod levels;
 
 fn main() {
     MainWindow::new().unwrap().run().unwrap();
-    
+
     // Set up terminal controls
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -91,10 +91,22 @@ fn main() {
 }
 
 slint::slint! {
-    export component MainWindow inherits Window {
+    component Tile inherits Rectangle {
+        in property <string> character;
+
+        width: 24px;
+        height: 24px;
+        background: #12aa12;
+    
         Text {
-            text: "hello world";
-            color: green;
+            text: parent.character;
+            color: #000000;
+        }
+    }
+
+    export component MainWindow inherits Window {
+        Tile {
+            character: "w";
         }
     }
 }
