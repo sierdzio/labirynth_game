@@ -11,6 +11,8 @@ pub mod board;
 pub mod levels;
 
 fn main() {
+    MainWindow::new().unwrap().run().unwrap();
+    
     // Set up terminal controls
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -86,4 +88,13 @@ fn main() {
     }
 
     write!(stdout, "{}", termion::cursor::Show).unwrap();
+}
+
+slint::slint! {
+    export component MainWindow inherits Window {
+        Text {
+            text: "hello world";
+            color: green;
+        }
+    }
 }
