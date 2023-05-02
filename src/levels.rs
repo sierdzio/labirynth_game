@@ -5,6 +5,8 @@ use termion::raw::RawTerminal;
 use termion::input::TermRead;
 use termion::event::Key;
 
+const NEW_LINE: &str = "\r\n";
+
 pub fn get_available_levels() -> Result<Vec<String>, &'static str> {
     let mut result: Vec<String> = vec![];
 
@@ -33,15 +35,15 @@ pub fn get_available_levels() -> Result<Vec<String>, &'static str> {
 
 pub fn draw_available_levels(stdout: &mut RawTerminal<Stdout>, levels: &Vec<String>, current_index: i32) {
     if levels.len() > 0 {
-        write!(stdout, "Select a level with SPACE or quit with 'q'\r\n").unwrap();
-        write!(stdout, "Available levels are:\r\n").unwrap();
+        write!(stdout, "Select a level with SPACE or quit with 'q'{}", NEW_LINE).unwrap();
+        write!(stdout, "Available levels are:{}", NEW_LINE).unwrap();
 
         let mut index = 0;
         for level in levels {
             if index == current_index {
-                write!(stdout, " * {}\r\n", level).unwrap();
+                write!(stdout, " * {}{}", level, NEW_LINE).unwrap();
             } else {
-                write!(stdout, " - {}\r\n", level).unwrap();
+                write!(stdout, " - {}{}", level, NEW_LINE).unwrap();
             }
 
             index = index + 1;
@@ -63,7 +65,7 @@ pub fn let_user_select_level(stdout: &mut RawTerminal<Stdout>) -> Result<String,
 
         match c.unwrap() {
             Key::Char('q') => {
-                write!(stdout, "Quitting!\r\n").unwrap();
+                write!(stdout, "Quitting!{}", NEW_LINE).unwrap();
                 return Err("No selection!");
             },
             Key::Up => {
