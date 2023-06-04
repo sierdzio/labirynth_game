@@ -1,16 +1,68 @@
-use std::io::{Write, stdout, stdin};
+use std::io::{Write, Stdout, stdout, stdin};
+use std::{fs, process};
 
 use termion::input::TermRead;
 use termion::event::Key;
 use termion::raw::IntoRawMode;
-
-use std::{fs, process};
+use termion::raw::RawTerminal;
 
 use crate::player;
 use crate::board;
 use crate::levels;
 
 const NEW_LINE: &str = "\r\n";
+
+pub fn draw_board(stdout: &mut RawTerminal<Stdout>, board: &Vec<Vec<char>>, position: &player::Position) {
+    write!(stdout, "Use arrow keys to go through the maze. Type 'q' to quit\r\n").unwrap();
+    write!(stdout, "w - wall, dot (.) - path, d - doors, ☑ - exit\r\n").unwrap();
+
+    for (row_index, row) in board.iter().enumerate() {
+        for (column_index, character) in row.iter().enumerate() {                
+            if position.x == column_index && position.y == row_index {
+                let player_char = board::PLAYER;
+                write!(stdout, "{player_char}").unwrap(); 
+            } else {
+                write!(stdout, "{character}").unwrap();
+            }
+        }
+        write!(stdout, "\r\n").unwrap();
+    }
+
+    stdout.flush().unwrap();
+}
+
+pub fn parse_board_string(stdout: &mut RawTerminal<Stdout>, raw_data: String) 
+ -> Result<Vec<Vec<char>>, &'static str>
+{
+    write!(stdout, "Read board data: {}\r\n", raw_data).unwrap();
+
+    let mut result: Vec<Vec<char>> = vec![];
+    for line in raw_data.lines() {
+        if line.starts_with(board::COMMENT) || line.is_empty() {
+            continue;
+        }
+
+        let mut chars: Vec<char> = vec![];
+
+        for character in line.chars() {
+            if character == board::FINISH_TILE || character == board::ALTERNATE_FINISH_TILE {
+                chars.push(board::FINISH_TILE);
+            } else if character == board::WALL || character == board::DOORS || character == board::PATH {
+                chars.push(character);
+            }
+        }
+
+        if chars.is_empty() == false {
+            result.push(chars);
+        }
+    }
+
+    if result.is_empty() {
+        return Err("Board data is empty");
+    }
+
+    return Ok(result);
+}
 
 pub fn draw_ui_choice(launch_gui: bool) {
     let mut std_out = stdout().into_raw_mode().unwrap();
@@ -87,7 +139,7 @@ pub fn run_game_cli() {
         Err(error) => panic!("{}", error),
     };
 
-    let board: Vec<Vec<char>> = match board::parse_board_string(&mut std_out, raw_data) {
+    let board: Vec<Vec<char>> = match parse_board_string(&mut std_out, raw_data) {
         Ok(data) => data,
         Err(error) => panic!("{}", error),
     };
@@ -97,7 +149,7 @@ pub fn run_game_cli() {
         y: 0
     };    
 
-    board::draw_board(&mut std_out, &board, &position);
+    draw_board(&mut std_out, &board, &position);
 
     let mut direction: player::Direction;
 
@@ -134,7 +186,7 @@ pub fn run_game_cli() {
         }
 
         player::try_to_move(&board, &mut position, direction);
-        board::draw_board(&mut std_out, &board, &position);
+        draw_board(&mut std_out, &board, &position);
         write!(std_out, "{} {}", move_text, NEW_LINE).unwrap();
 
         if board[position.y][position.x] == board::FINISH_TILE
